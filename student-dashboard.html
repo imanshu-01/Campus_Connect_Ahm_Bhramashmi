@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PlaceBridge — Student Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #070b14;
+    --surface: rgba(255,255,255,0.04);
+    --border: rgba(255,255,255,0.08);
+    --blue: #1a4bff;
+    --blue-soft: rgba(26,75,255,0.15);
+    --cyan: #00d4ff;
+    --cyan-soft: rgba(0,212,255,0.12);
+    --green: #00e589;
+    --green-soft: rgba(0,229,137,0.12);
+    --orange: #ff7c1a;
+    --orange-soft: rgba(255,124,26,0.12);
+    --red: #ff4d6a;
+    --red-soft: rgba(255,77,106,0.12);
+    --text: #e8edf5;
+    --muted: #8492a6;
+    --radius: 16px;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+  }
+
+  /* Ambient background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 600px 400px at 20% 10%, rgba(26,75,255,0.08) 0%, transparent 70%),
+      radial-gradient(ellipse 500px 300px at 80% 80%, rgba(0,212,255,0.06) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 240px;
+    flex-shrink: 0;
+    background: rgba(255,255,255,0.03);
+    border-right: 1px solid var(--border);
+    padding: 28px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    z-index: 10;
+  }
+
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.5px;
+    padding: 6px 12px 20px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 8px;
+  }
+  .logo span { color: var(--cyan); }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+  }
+  .nav-item:hover { background: var(--surface); color: var(--text); }
+  .nav-item.active { background: var(--blue-soft); color: var(--cyan); }
+
+  .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+
+  .sidebar-footer {
+    margin-top: auto;
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+  }
+  .logout-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--red);
+    cursor: pointer;
+    transition: background 0.2s;
+    background: none;
+    border: none;
+    width: 100%;
+  }
+  .logout-btn:hover { background: var(--red-soft); }
+
+  /* MAIN */
+  .main {
+    flex: 1;
+    padding: 36px 40px;
+    overflow-y: auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  .top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 32px;
+  }
+
+  .greeting h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 26px;
+    font-weight: 800;
+    color: #fff;
+  }
+  .greeting p { font-size: 13px; color: var(--muted); margin-top: 3px; }
+
+  .status-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 30px;
+    background: var(--green-soft);
+    border: 1px solid rgba(0,229,137,0.2);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--green);
+  }
+  .status-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--green);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* GRID LAYOUTS */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 20px; }
+  .grid-main { display: grid; grid-template-columns: 1fr 340px; gap: 20px; margin-bottom: 20px; }
+
+  /* CARD */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    transition: border-color 0.2s;
+    animation: fadeUp 0.4s ease both;
+  }
+  .card:hover { border-color: rgba(255,255,255,0.14); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .card:nth-child(1) { animation-delay: 0.05s; }
+  .card:nth-child(2) { animation-delay: 0.10s; }
+  .card:nth-child(3) { animation-delay: 0.15s; }
+  .card:nth-child(4) { animation-delay: 0.20s; }
+
+  .card-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .card-value {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1;
+  }
+  .card-sub { font-size: 12px; color: var(--muted); margin-top: 6px; }
+
+  /* Profile card */
+  .profile-card {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 28px;
+  }
+  .avatar {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--blue), var(--cyan));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-size: 24px;
+    font-weight: 800;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .profile-info h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    color: #fff;
+  }
+  .profile-info p { font-size: 13px; color: var(--muted); margin-top: 3px; }
+
+  /* Stat mini cards */
+  .stat-card { position: relative; overflow: hidden; }
+  .stat-card::after {
+    content: attr(data-icon);
+    position: absolute;
+    right: 18px; top: 18px;
+    font-size: 28px;
+    opacity: 0.2;
+  }
+  .stat-accent { display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 6px; }
+
+  /* CGPA Ring */
+  .cgpa-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+  .ring-container { position: relative; width: 100px; height: 100px; flex-shrink: 0; }
+  .ring-container svg { transform: rotate(-90deg); }
+  .ring-bg { fill: none; stroke: rgba(255,255,255,0.07); stroke-width: 8; }
+  .ring-fill {
+    fill: none;
+    stroke: var(--cyan);
+    stroke-width: 8;
+    stroke-linecap: round;
+    stroke-dasharray: 283;
+    stroke-dashoffset: 70;
+    transition: stroke-dashoffset 1s ease;
+  }
+  .ring-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .ring-text .big { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: #fff; }
+  .ring-text .small { font-size: 10px; color: var(--muted); }
+  .cgpa-info h4 { font-family: 'Syne', sans-serif; font-size: 16px; color: #fff; }
+  .cgpa-info p { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+  /* Skills */
+  .skills-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .skill-tag {
+    padding: 6px 14px;
+    border-radius: 30px;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid;
+    cursor: default;
+    transition: transform 0.15s;
+  }
+  .skill-tag:hover { transform: translateY(-1px); }
+  .skill-tag.blue { background: var(--blue-soft); color: var(--cyan); border-color: rgba(0,212,255,0.2); }
+  .skill-tag.green { background: var(--green-soft); color: var(--green); border-color: rgba(0,229,137,0.2); }
+  .skill-tag.orange { background: var(--orange-soft); color: var(--orange); border-color: rgba(255,124,26,0.2); }
+
+  .skill-add-btn {
+    padding: 6px 14px;
+    border-radius: 30px;
+    font-size: 12px;
+    font-weight: 500;
+    background: none;
+    border: 1px dashed rgba(255,255,255,0.2);
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .skill-add-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+
+  /* Backlogs */
+  .backlog-display {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 8px;
+  }
+  .backlog-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 48px;
+    font-weight: 800;
+    line-height: 1;
+  }
+  .backlog-num.zero { color: var(--green); }
+  .backlog-num.some { color: var(--orange); }
+  .backlog-num.many { color: var(--red); }
+  .backlog-label { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+  /* Placement Timeline */
+  .timeline { display: flex; flex-direction: column; gap: 0; }
+  .tl-item {
+    display: flex;
+    gap: 14px;
+    padding-bottom: 20px;
+    position: relative;
+  }
+  .tl-item:last-child { padding-bottom: 0; }
+  .tl-left { display: flex; flex-direction: column; align-items: center; }
+  .tl-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--muted);
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+  .tl-dot.done { background: var(--green); }
+  .tl-dot.active { background: var(--cyan); box-shadow: 0 0 0 3px rgba(0,212,255,0.2); }
+  .tl-line {
+    width: 1px;
+    flex: 1;
+    background: var(--border);
+    margin-top: 4px;
+    min-height: 28px;
+  }
+  .tl-item:last-child .tl-line { display: none; }
+  .tl-content { flex: 1; }
+  .tl-title { font-size: 14px; font-weight: 500; color: var(--text); }
+  .tl-date { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  /* Company cards */
+  .company-list { display: flex; flex-direction: column; gap: 12px; margin-top: 12px; }
+  .company-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    transition: border-color 0.2s;
+    cursor: pointer;
+  }
+  .company-item:hover { border-color: rgba(0,212,255,0.3); }
+  .company-logo {
+    width: 38px; height: 38px;
+    border-radius: 8px;
+    background: var(--blue-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .company-info { flex: 1; }
+  .company-name { font-size: 14px; font-weight: 600; color: var(--text); }
+  .company-role { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .company-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+  .badge-open { background: var(--green-soft); color: var(--green); }
+  .badge-applied { background: var(--blue-soft); color: var(--cyan); }
+  .badge-closed { background: rgba(255,255,255,0.05); color: var(--muted); }
+
+  /* Section title */
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .section-title a {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--cyan);
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  /* Progress bars */
+  .prog-row { margin-bottom: 12px; }
+  .prog-label { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+  .prog-label span:last-child { color: var(--text); font-weight: 600; }
+  .prog-track {
+    height: 6px; background: rgba(255,255,255,0.07); border-radius: 4px; overflow: hidden;
+  }
+  .prog-fill {
+    height: 100%; border-radius: 4px;
+    transition: width 1s ease;
+  }
+
+  /* Edit modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(4px);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: #0d1424;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px;
+    width: 420px;
+    animation: fadeUp 0.3s ease;
+  }
+  .modal h3 { font-family: 'Syne', sans-serif; font-size: 18px; color: #fff; margin-bottom: 4px; }
+  .modal p { font-size: 13px; color: var(--muted); margin-bottom: 22px; }
+  .modal label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; margin-top: 14px; }
+  .modal input, .modal select {
+    width: 100%; padding: 11px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.05);
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+  }
+  .modal input:focus, .modal select:focus {
+    outline: none; border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(26,75,255,0.2);
+  }
+  .modal select option { background: #0d1424; }
+  .modal-actions { display: flex; gap: 10px; margin-top: 22px; }
+  .btn-primary {
+    flex: 1; padding: 12px;
+    background: var(--blue); border: none; border-radius: 10px;
+    color: #fff; font-weight: 600; font-size: 14px; cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-primary:hover { background: #0d2db5; }
+  .btn-ghost {
+    padding: 12px 20px; background: none;
+    border: 1px solid var(--border); border-radius: 10px;
+    color: var(--muted); font-size: 14px; cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .btn-ghost:hover { border-color: rgba(255,255,255,0.2); }
+
+  /* Edit button */
+  .edit-btn {
+    font-size: 12px;
+    color: var(--cyan);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: background 0.2s;
+  }
+  .edit-btn:hover { background: var(--cyan-soft); }
+
+  /* Responsive */
+  @media (max-width: 1100px) {
+    .grid-main { grid-template-columns: 1fr; }
+    .grid-3 { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+    .main { padding: 20px; }
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo">Place<span>Bridge</span></div>
+
+  <a class="nav-item active" href="#">
+    <span class="nav-icon">⊞</span> Dashboard
+  </a>
+  <a class="nav-item" href="#">
+    <span class="nav-icon">🏢</span> Companies
+  </a>
+  <a class="nav-item" href="#">
+    <span class="nav-icon">📄</span> Applications
+  </a>
+  <a class="nav-item" href="#">
+    <span class="nav-icon">📅</span> Drive Schedule
+  </span></a>
+  <a class="nav-item" href="#">
+    <span class="nav-icon">📊</span> Analytics
+  </a>
+  <a class="nav-item" href="#">
+    <span class="nav-icon">⚙️</span> Settings
+  </a>
+
+  <div class="sidebar-footer">
+    <button class="logout-btn" onclick="logout()">
+      <span>🚪</span> Sign Out
+    </button>
+  </div>
+</aside>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <div class="greeting">
+      <h1 id="greet-name">Welcome back, Alex 👋</h1>
+      <p id="greet-date">Tuesday, 24 March 2026</p>
+    </div>
+    <div class="status-badge">
+      <div class="status-dot"></div>
+      Eligible for Placement
+    </div>
+  </div>
+
+  <!-- PROFILE + STATS ROW -->
+  <div class="grid-2" style="grid-template-columns: 1fr 1fr;">
+    <!-- Profile Card -->
+    <div class="card profile-card" style="animation-delay:0.05s">
+      <div class="avatar" id="avatar-initials">AK</div>
+      <div class="profile-info">
+        <h3 id="disp-name">Alex Kumar</h3>
+        <p id="disp-branch">B.Tech — Computer Science & Engineering</p>
+        <p id="disp-college-id" style="color:var(--cyan);font-size:12px;margin-top:6px;font-weight:600;">ID: CS2021047</p>
+      </div>
+      <button class="edit-btn" onclick="openModal()" style="margin-left:auto;align-self:flex-start;">✏️ Edit</button>
+    </div>
+
+    <!-- CGPA -->
+    <div class="card" style="animation-delay:0.1s">
+      <div class="card-label">Academic Performance</div>
+      <div class="cgpa-wrapper">
+        <div class="ring-container">
+          <svg width="100" height="100" viewBox="0 0 100 100">
+            <circle class="ring-bg" cx="50" cy="50" r="45"/>
+            <circle class="ring-fill" id="cgpa-ring" cx="50" cy="50" r="45"/>
+          </svg>
+          <div class="ring-text">
+            <span class="big" id="cgpa-ring-val">8.4</span>
+            <span class="small">/ 10</span>
+          </div>
+        </div>
+        <div class="cgpa-info">
+          <h4>CGPA: <span id="disp-cgpa">8.4</span></h4>
+          <p id="cgpa-remark">Good Standing ✓</p>
+          <div style="margin-top:12px;">
+            <div class="prog-row">
+              <div class="prog-label"><span>Sem 7</span><span>8.6</span></div>
+              <div class="prog-track"><div class="prog-fill" style="width:86%;background:var(--cyan)"></div></div>
+            </div>
+            <div class="prog-row">
+              <div class="prog-label"><span>Sem 6</span><span>8.2</span></div>
+              <div class="prog-track"><div class="prog-fill" style="width:82%;background:var(--blue)"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STAT MINI CARDS -->
+  <div class="grid-3" style="margin-bottom:20px;">
+    <div class="card stat-card" data-icon="📚" style="animation-delay:0.15s">
+      <div class="card-label"><span class="stat-accent" style="background:var(--orange)"></span>Branch</div>
+      <div class="card-value" id="disp-branch-short" style="font-size:18px;line-height:1.2">CSE</div>
+      <div class="card-sub" id="disp-year">4th Year · Sem 8</div>
+    </div>
+
+    <div class="card stat-card" data-icon="⚠️" style="animation-delay:0.2s">
+      <div class="card-label"><span class="stat-accent" id="backlog-accent" style="background:var(--green)"></span>Active Backlogs</div>
+      <div class="backlog-display">
+        <div class="backlog-num zero" id="disp-backlogs">0</div>
+        <div class="backlog-label" id="backlog-text">No active<br>backlogs — ✓<br><span style="font-size:11px;color:var(--green)">Placement eligible</span></div>
+      </div>
+    </div>
+
+    <div class="card stat-card" data-icon="📋" style="animation-delay:0.25s">
+      <div class="card-label"><span class="stat-accent" style="background:var(--blue)"></span>Applications</div>
+      <div class="card-value" style="color:var(--cyan)">3</div>
+      <div class="card-sub">2 shortlisted · 1 pending</div>
+    </div>
+  </div>
+
+  <!-- SKILLS + COMPANIES -->
+  <div class="grid-main">
+    <div style="display:flex;flex-direction:column;gap:20px;">
+
+      <!-- Skills -->
+      <div class="card" style="animation-delay:0.3s">
+        <div class="section-title">
+          Technical Skills
+          <button class="edit-btn" onclick="openSkillModal()">+ Add Skill</button>
+        </div>
+        <div class="skills-grid" id="skills-container">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Companies -->
+      <div class="card" style="animation-delay:0.35s">
+        <div class="section-title">
+          Open Drives <a>View all →</a>
+        </div>
+        <div class="company-list">
+          <div class="company-item">
+            <div class="company-logo">🔵</div>
+            <div class="company-info">
+              <div class="company-name">Infosys</div>
+              <div class="company-role">Systems Engineer · ₹4.5 LPA</div>
+            </div>
+            <span class="company-badge badge-open">Open</span>
+          </div>
+          <div class="company-item">
+            <div class="company-logo">🟢</div>
+            <div class="company-info">
+              <div class="company-name">TCS</div>
+              <div class="company-role">Software Developer · ₹3.8 LPA</div>
+            </div>
+            <span class="company-badge badge-applied">Applied</span>
+          </div>
+          <div class="company-item">
+            <div class="company-logo">🟠</div>
+            <div class="company-info">
+              <div class="company-name">Wipro</div>
+              <div class="company-role">Project Engineer · ₹3.5 LPA</div>
+            </div>
+            <span class="company-badge badge-open">Open</span>
+          </div>
+          <div class="company-item">
+            <div class="company-logo">⚫</div>
+            <div class="company-info">
+              <div class="company-name">Capgemini</div>
+              <div class="company-role">Analyst · ₹4.0 LPA</div>
+            </div>
+            <span class="company-badge badge-closed">Closed</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN: Timeline + Quick Info -->
+    <div style="display:flex;flex-direction:column;gap:20px;">
+
+      <!-- Placement Timeline -->
+      <div class="card" style="animation-delay:0.4s">
+        <div class="section-title">Placement Timeline</div>
+        <div class="timeline">
+          <div class="tl-item">
+            <div class="tl-left"><div class="tl-dot done"></div><div class="tl-line"></div></div>
+            <div class="tl-content">
+              <div class="tl-title">Profile Registered</div>
+              <div class="tl-date">Jan 10, 2026</div>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-left"><div class="tl-dot done"></div><div class="tl-line"></div></div>
+            <div class="tl-content">
+              <div class="tl-title">Resume Submitted</div>
+              <div class="tl-date">Feb 2, 2026</div>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-left"><div class="tl-dot active"></div><div class="tl-line"></div></div>
+            <div class="tl-content">
+              <div class="tl-title">Campus Drive Season</div>
+              <div class="tl-date">Mar – May 2026 · In Progress</div>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+            <div class="tl-content">
+              <div class="tl-title">Offer Letter</div>
+              <div class="tl-date">Expected Jun 2026</div>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-left"><div class="tl-dot"></div></div>
+            <div class="tl-content">
+              <div class="tl-title">Joining</div>
+              <div class="tl-date">Jul – Aug 2026</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Info -->
+      <div class="card" style="animation-delay:0.45s">
+        <div class="section-title">Quick Info</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;justify-content:space-between;font-size:13px;padding:8px 0;border-bottom:1px solid var(--border)">
+            <span style="color:var(--muted)">College ID</span>
+            <span id="qi-college-id" style="color:var(--text);font-weight:500">CS2021047</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;padding:8px 0;border-bottom:1px solid var(--border)">
+            <span style="color:var(--muted)">Branch</span>
+            <span id="qi-branch" style="color:var(--text);font-weight:500">CSE</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;padding:8px 0;border-bottom:1px solid var(--border)">
+            <span style="color:var(--muted)">CGPA</span>
+            <span id="qi-cgpa" style="color:var(--cyan);font-weight:600">8.4 / 10</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;padding:8px 0;border-bottom:1px solid var(--border)">
+            <span style="color:var(--muted)">Backlogs</span>
+            <span id="qi-backlogs" style="color:var(--green);font-weight:600">0 (Clear)</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;padding:8px 0;">
+            <span style="color:var(--muted)">Email</span>
+            <span id="qi-email" style="color:var(--text);font-weight:500">alex@college.edu</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</main>
+
+<!-- EDIT PROFILE MODAL -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <h3>Edit Profile</h3>
+    <p>Update your academic information</p>
+
+    <label>First Name</label>
+    <input type="text" id="m-fname" placeholder="First Name">
+
+    <label>Last Name</label>
+    <input type="text" id="m-lname" placeholder="Last Name">
+
+    <label>College ID</label>
+    <input type="text" id="m-college-id" placeholder="e.g. CS2021047">
+
+    <label>Branch</label>
+    <select id="m-branch">
+      <option value="CSE">Computer Science & Engineering (CSE)</option>
+      <option value="IT">Information Technology (IT)</option>
+      <option value="ECE">Electronics & Communication (ECE)</option>
+      <option value="EE">Electrical Engineering (EE)</option>
+      <option value="ME">Mechanical Engineering (ME)</option>
+      <option value="CE">Civil Engineering (CE)</option>
+      <option value="ENTC">Electronics & Telecom (ENTC)</option>
+      <option value="AIDS">AI & Data Science (AIDS)</option>
+    </select>
+
+    <label>CGPA (out of 10)</label>
+    <input type="number" id="m-cgpa" step="0.01" min="0" max="10" placeholder="e.g. 8.4">
+
+    <label>Active Backlogs</label>
+    <input type="number" id="m-backlogs" min="0" max="20" placeholder="Enter 0 if none">
+
+    <label>Year of Study</label>
+    <select id="m-year">
+      <option value="1st">1st Year</option>
+      <option value="2nd">2nd Year</option>
+      <option value="3rd">3rd Year</option>
+      <option value="4th" selected>4th Year</option>
+    </select>
+
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveProfile()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD SKILL MODAL -->
+<div class="modal-overlay" id="skillModal">
+  <div class="modal">
+    <h3>Add Skill</h3>
+    <p>Add a technical or soft skill to your profile</p>
+    <label>Skill Name</label>
+    <input type="text" id="m-skill" placeholder="e.g. React, Python, SQL...">
+    <label>Category</label>
+    <select id="m-skill-color">
+      <option value="blue">Technical (Blue)</option>
+      <option value="green">Tools & Frameworks (Green)</option>
+      <option value="orange">Soft Skills (Orange)</option>
+    </select>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeSkillModal()">Cancel</button>
+      <button class="btn-primary" onclick="addSkill()">Add Skill</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ─── State ───────────────────────────────────────────────
+  const KEY = "pb_logged_user";
+  const USERS_KEY = "pb_users";
+  const PROFILE_KEY = "pb_profile";
+
+  const DEFAULT_PROFILE = {
+    fname: "Alex",
+    lname: "Kumar",
+    email: "alex@college.edu",
+    collegeId: "CS2021047",
+    branch: "CSE",
+    cgpa: 8.4,
+    backlogs: 0,
+    year: "4th",
+    skills: [
+      { name: "Python", color: "blue" },
+      { name: "Java", color: "blue" },
+      { name: "React", color: "green" },
+      { name: "SQL", color: "green" },
+      { name: "Node.js", color: "green" },
+      { name: "Communication", color: "orange" }
+    ]
+  };
+
+  function loadProfile() {
+    // Try to get logged-in user data
+    const email = localStorage.getItem(KEY);
+    const saved = localStorage.getItem(PROFILE_KEY);
+    if (saved) {
+      const p = JSON.parse(saved);
+      if (!p.skills) p.skills = DEFAULT_PROFILE.skills;
+      return p;
+    }
+    if (email) {
+      const users = JSON.parse(localStorage.getItem(USERS_KEY) || "[]");
+      const user = users.find(u => u.email === email);
+      if (user) {
+        return {
+          fname: user.fname || "Student",
+          lname: user.lname || "",
+          email: user.email,
+          collegeId: "COLLEGE-ID",
+          branch: "CSE",
+          cgpa: 0,
+          backlogs: 0,
+          year: "4th",
+          skills: DEFAULT_PROFILE.skills
+        };
+      }
+    }
+    return { ...DEFAULT_PROFILE };
+  }
+
+  let profile = loadProfile();
+
+  // ─── Render ───────────────────────────────────────────────
+  function render() {
+    const fullName = `${profile.fname} ${profile.lname}`.trim();
+    const initials = (profile.fname[0] || "") + (profile.lname[0] || "");
+
+    document.getElementById("greet-name").textContent = `Welcome back, ${profile.fname} 👋`;
+    document.getElementById("avatar-initials").textContent = initials.toUpperCase() || "ST";
+    document.getElementById("disp-name").textContent = fullName;
+    document.getElementById("disp-branch").textContent = `B.Tech — ${branchFull(profile.branch)}`;
+    document.getElementById("disp-college-id").textContent = `ID: ${profile.collegeId}`;
+    document.getElementById("disp-cgpa").textContent = profile.cgpa;
+    document.getElementById("disp-branch-short").textContent = profile.branch;
+    document.getElementById("disp-year").textContent = `${profile.year} Year`;
+    document.getElementById("qi-college-id").textContent = profile.collegeId;
+    document.getElementById("qi-branch").textContent = profile.branch;
+    document.getElementById("qi-cgpa").textContent = `${profile.cgpa} / 10`;
+    document.getElementById("qi-email").textContent = profile.email;
+
+    // CGPA ring
+    const pct = Math.min(profile.cgpa / 10, 1);
+    const offset = 283 - (pct * 283);
+    document.getElementById("cgpa-ring").style.strokeDashoffset = offset;
+    document.getElementById("cgpa-ring-val").textContent = profile.cgpa;
+    document.getElementById("cgpa-remark").textContent =
+      profile.cgpa >= 9 ? "Excellent ⭐" :
+      profile.cgpa >= 7.5 ? "Good Standing ✓" :
+      profile.cgpa >= 6 ? "Average Standing" : "Below Threshold ⚠️";
+
+    // Backlogs
+    const bl = profile.backlogs;
+    const blEl = document.getElementById("disp-backlogs");
+    blEl.textContent = bl;
+    blEl.className = "backlog-num " + (bl === 0 ? "zero" : bl <= 2 ? "some" : "many");
+    document.getElementById("backlog-accent").style.background = bl === 0 ? "var(--green)" : bl <= 2 ? "var(--orange)" : "var(--red)";
+    document.getElementById("backlog-text").innerHTML =
+      bl === 0 ? `No active<br>backlogs — ✓<br><span style="font-size:11px;color:var(--green)">Placement eligible</span>` :
+      bl <= 2 ? `${bl} active backlog${bl > 1 ? "s" : ""}<br><span style="font-size:11px;color:var(--orange)">Check eligibility</span>` :
+      `${bl} active backlogs<br><span style="font-size:11px;color:var(--red)">May affect eligibility</span>`;
+    document.getElementById("qi-backlogs").textContent = bl === 0 ? "0 (Clear)" : bl;
+    document.getElementById("qi-backlogs").style.color = bl === 0 ? "var(--green)" : bl <= 2 ? "var(--orange)" : "var(--red)";
+
+    // Status badge
+    const eligible = profile.cgpa >= 6 && profile.backlogs === 0;
+    const badge = document.querySelector(".status-badge");
+    badge.style.background = eligible ? "var(--green-soft)" : "var(--red-soft)";
+    badge.style.border = eligible ? "1px solid rgba(0,229,137,0.2)" : "1px solid rgba(255,77,106,0.2)";
+    badge.style.color = eligible ? "var(--green)" : "var(--red)";
+    badge.querySelector(".status-dot").style.background = eligible ? "var(--green)" : "var(--red)";
+    badge.lastChild.textContent = eligible ? " Eligible for Placement" : " Check Eligibility";
+
+    renderSkills();
+  }
+
+  function branchFull(code) {
+    const map = {
+      CSE: "Computer Science & Engineering",
+      IT: "Information Technology",
+      ECE: "Electronics & Communication Engineering",
+      EE: "Electrical Engineering",
+      ME: "Mechanical Engineering",
+      CE: "Civil Engineering",
+      ENTC: "Electronics & Telecom Engineering",
+      AIDS: "AI & Data Science"
+    };
+    return map[code] || code;
+  }
+
+  function renderSkills() {
+    const container = document.getElementById("skills-container");
+    container.innerHTML = "";
+    profile.skills.forEach((s, i) => {
+      const tag = document.createElement("span");
+      tag.className = `skill-tag ${s.color}`;
+      tag.textContent = s.name;
+      tag.title = "Click to remove";
+      tag.onclick = () => { profile.skills.splice(i, 1); saveAndRender(); };
+      container.appendChild(tag);
+    });
+  }
+
+  // ─── Profile Modal ────────────────────────────────────────
+  function openModal() {
+    document.getElementById("m-fname").value = profile.fname;
+    document.getElementById("m-lname").value = profile.lname;
+    document.getElementById("m-college-id").value = profile.collegeId;
+    document.getElementById("m-branch").value = profile.branch;
+    document.getElementById("m-cgpa").value = profile.cgpa;
+    document.getElementById("m-backlogs").value = profile.backlogs;
+    document.getElementById("m-year").value = profile.year;
+    document.getElementById("editModal").classList.add("open");
+  }
+  function closeModal() { document.getElementById("editModal").classList.remove("open"); }
+
+  function saveProfile() {
+    const cgpa = parseFloat(document.getElementById("m-cgpa").value);
+    const backlogs = parseInt(document.getElementById("m-backlogs").value);
+    if (isNaN(cgpa) || cgpa < 0 || cgpa > 10) { alert("Enter a valid CGPA (0–10)"); return; }
+    if (isNaN(backlogs) || backlogs < 0) { alert("Enter a valid backlog count"); return; }
+
+    profile.fname = document.getElementById("m-fname").value.trim() || profile.fname;
+    profile.lname = document.getElementById("m-lname").value.trim();
+    profile.collegeId = document.getElementById("m-college-id").value.trim() || profile.collegeId;
+    profile.branch = document.getElementById("m-branch").value;
+    profile.cgpa = cgpa;
+    profile.backlogs = backlogs;
+    profile.year = document.getElementById("m-year").value;
+    closeModal();
+    saveAndRender();
+  }
+
+  // ─── Skill Modal ──────────────────────────────────────────
+  function openSkillModal() {
+    document.getElementById("m-skill").value = "";
+    document.getElementById("skillModal").classList.add("open");
+  }
+  function closeSkillModal() { document.getElementById("skillModal").classList.remove("open"); }
+  function addSkill() {
+    const name = document.getElementById("m-skill").value.trim();
+    if (!name) { alert("Enter a skill name"); return; }
+    const color = document.getElementById("m-skill-color").value;
+    profile.skills.push({ name, color });
+    closeSkillModal();
+    saveAndRender();
+  }
+
+  function saveAndRender() {
+    localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
+    render();
+  }
+
+  function logout() {
+    localStorage.removeItem(KEY);
+    window.location.href = "studentlogin.html";
+  }
+
+  // ─── Init ─────────────────────────────────────────────────
+  const now = new Date();
+  document.getElementById("greet-date").textContent = now.toLocaleDateString("en-IN", {
+    weekday: "long", day: "numeric", month: "long", year: "numeric"
+  });
+
+  // Close modals on overlay click
+  document.getElementById("editModal").addEventListener("click", function(e) {
+    if (e.target === this) closeModal();
+  });
+  document.getElementById("skillModal").addEventListener("click", function(e) {
+    if (e.target === this) closeSkillModal();
+  });
+
+  render();
+</script>
+</body>
+</html>
