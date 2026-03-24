@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>CareerCompass | Smart Company Matcher for Students</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: linear-gradient(135deg, #f5f7fc 0%, #eef2f8 100%);
+      min-height: 100vh;
+      padding: 2rem 1.5rem;
+    }
+
+    /* main container */
+    .app-container {
+      max-width: 1440px;
+      margin: 0 auto;
+    }
+
+    /* header section */
+    .hero {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .hero h1 {
+      font-size: 2.4rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #1A2C3E, #1E4A76);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      letter-spacing: -0.3px;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .hero h1 i {
+      background: none;
+      color: #1E4A76;
+      font-size: 2rem;
+    }
+
+    .hero p {
+      color: #4a5b6e;
+      font-size: 1.1rem;
+      margin-top: 0.6rem;
+      font-weight: 400;
+      max-width: 650px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* card style for filter panel */
+    .filter-card {
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(0px);
+      border-radius: 28px;
+      box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.02);
+      padding: 1.8rem 2rem;
+      margin-bottom: 2rem;
+      border: 1px solid rgba(255,255,255,0.5);
+      transition: all 0.2s ease;
+    }
+
+    .filter-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      align-items: flex-end;
+    }
+
+    .input-group {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .input-group label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #2c3e50;
+      margin-bottom: 8px;
+    }
+
+    .input-group label i {
+      font-size: 0.9rem;
+      color: #2c7da0;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 12px 16px;
+      font-size: 0.95rem;
+      font-family: 'Inter', monospace;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 20px;
+      background: #fff;
+      transition: all 0.2s;
+      font-weight: 500;
+    }
+
+    .input-group input:focus {
+      outline: none;
+      border-color: #2c7da0;
+      box-shadow: 0 4px 12px rgba(44,125,160,0.12);
+    }
+
+    .input-group .hint {
+      font-size: 0.7rem;
+      color: #6c7a8e;
+      margin-top: 6px;
+      margin-left: 12px;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .btn-primary {
+      background: #1E4A76;
+      border: none;
+      padding: 12px 28px;
+      border-radius: 40px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: 0.2s;
+      font-family: 'Inter', sans-serif;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    .btn-primary:hover {
+      background: #0f3b5c;
+      transform: translateY(-2px);
+      box-shadow: 0 12px 20px -12px rgba(30,74,118,0.4);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1.5px solid #cbd5e1;
+      padding: 12px 24px;
+      border-radius: 40px;
+      font-weight: 500;
+      font-size: 0.9rem;
+      color: #2c3e50;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .btn-outline:hover {
+      background: #f1f5f9;
+      border-color: #94a3b8;
+    }
+
+    .result-banner {
+      background: #eef2ff;
+      border-left: 6px solid #1E4A76;
+      border-radius: 20px;
+      padding: 1rem 1.5rem;
+      margin-bottom: 1.8rem;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      justify-content: space-between;
+    }
+
+    .result-text {
+      font-weight: 500;
+      color: #1e2a3a;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .result-text i {
+      font-size: 1.2rem;
+      color: #1E4A76;
+    }
+
+    .badge-count {
+      background: #1E4A76;
+      color: white;
+      border-radius: 40px;
+      padding: 4px 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    /* companies grid - modern cards */
+    .companies-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 1.8rem;
+      margin-top: 0.5rem;
+    }
+
+    .company-card {
+      background: #ffffff;
+      border-radius: 28px;
+      overflow: hidden;
+      transition: all 0.25s cubic-bezier(0.2, 0, 0, 1);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.02), 0 2px 4px rgba(0, 0, 0, 0.02);
+      border: 1px solid rgba(203, 213, 225, 0.5);
+      backdrop-filter: blur(2px);
+      position: relative;
+    }
+
+    .company-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 24px 36px -16px rgba(0, 32, 64, 0.18);
+      border-color: #cbdff2;
+    }
+
+    .card-header {
+      padding: 1.4rem 1.6rem 0.8rem 1.6rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 2px solid #f0f4f9;
+    }
+
+    .company-name {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      background: linear-gradient(145deg, #1F3A5F, #1E4A76);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .company-type {
+      background: #eaf6ff;
+      padding: 5px 12px;
+      border-radius: 30px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #1E4A76;
+      letter-spacing: 0.3px;
+    }
+
+    .card-body {
+      padding: 1rem 1.6rem 1.2rem;
+    }
+
+    .skill-section {
+      margin: 12px 0;
+    }
+
+    .skill-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: #5c6f87;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tag {
+      background: #f0f5fa;
+      color: #1e4663;
+      padding: 5px 12px;
+      border-radius: 40px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      transition: 0.1s;
+      border: 0.5px solid #e2edf5;
+    }
+
+    .cgpa-range {
+      margin-top: 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #F8FAFE;
+      padding: 8px 12px;
+      border-radius: 24px;
+      width: fit-content;
+    }
+
+    .cgpa-range i {
+      color: #e67e22;
+      font-size: 0.9rem;
+    }
+
+    .cgpa-text {
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #2c3e50;
+    }
+
+    .empty-state {
+      text-align: center;
+      background: white;
+      border-radius: 48px;
+      padding: 3rem 2rem;
+      grid-column: 1 / -1;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.02);
+      border: 1px dashed #cbd5e1;
+    }
+
+    .empty-state i {
+      font-size: 3rem;
+      color: #94a3b8;
+      margin-bottom: 1rem;
+    }
+
+    .empty-state h4 {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #2d3e50;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 3rem;
+      font-size: 0.75rem;
+      color: #7e8c9e;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 1.8rem;
+    }
+
+    @keyframes fadeSlideUp {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .company-card {
+      animation: fadeSlideUp 0.35s ease forwards;
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 1rem;
+      }
+      .filter-card {
+        padding: 1.2rem;
+      }
+      .filter-grid {
+        flex-direction: column;
+      }
+      .action-buttons {
+        width: 100%;
+        justify-content: stretch;
+      }
+      .btn-primary, .btn-outline {
+        justify-content: center;
+        flex: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="app-container">
+  <div class="hero">
+    <h1>
+      <i class="fas fa-chart-line"></i> 
+      CareerCompass
+    </h1>
+    <p>Intelligent company matching based on your academic profile & skill set — discover top recruiters tailored for you.</p>
+  </div>
+
+  <!-- Enhanced filter panel -->
+  <div class="filter-card">
+    <div class="filter-grid">
+      <div class="input-group">
+        <label><i class="fas fa-graduation-cap"></i> CGPA (0.0 – 10.0)</label>
+        <input type="number" id="cgpaInput" step="0.01" placeholder="e.g., 7.4" value="7.2">
+        <div class="hint">Enter your current CGPA</div>
+      </div>
+      <div class="input-group">
+        <label><i class="fas fa-code"></i> Your Skills (comma separated)</label>
+        <input type="text" id="skillsInput" placeholder="e.g., DSA, Python, SQL, System Design" value="DSA, SQL">
+        <div class="hint">Matching skills increase recommendations</div>
+      </div>
+      <div class="action-buttons">
+        <button class="btn-primary" id="matchBtn"><i class="fas fa-magic"></i> Find matches</button>
+        <button class="btn-outline" id="resetBtn"><i class="fas fa-sync-alt"></i> Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- dynamic result banner -->
+  <div class="result-banner" id="resultBanner">
+    <div class="result-text" id="resultText">
+      <i class="fas fa-bullhorn"></i> 
+      <span id="messageSpan">Ready to explore opportunities — adjust filters to see best-fit companies.</span>
+    </div>
+    <div id="counterBadge" class="badge-count">0 companies</div>
+  </div>
+
+  <!-- companies grid container -->
+  <div class="companies-grid" id="companiesGrid">
+    <!-- JS injects cards -->
+  </div>
+  <footer>
+    <i class="fas fa-briefcase"></i> Powered by real industry data • Recommendations based on CGPA & skill synergy
+  </footer>
+</div>
+
+<script>
+  // ---------- Enhanced Company Database (more realistic, richer data) ----------
+  const companies = [
+    {
+      name: "TCS",
+      type: "Service & Consulting",
+      skills: ["DSA", "OOP", "SQL", "Aptitude", "Java", "Python"],
+      cgpaMin: 6.0,
+      cgpaMax: 6.9,
+      description: "Global IT leader, excellent campus hiring program."
+    },
+    {
+      name: "Infosys",
+      type: "Digital Services",
+      skills: ["DSA", "OOP", "DBMS", "Communication", "Python", "JavaScript"],
+      cgpaMin: 6.0,
+      cgpaMax: 7.2,
+      description: "Power program, focus on upskilling."
+    },
+    {
+      name: "Wipro",
+      type: "IT Services",
+      skills: ["OOP", "DBMS", "Aptitude", "C++", "Cloud Basics"],
+      cgpaMin: 6.0,
+      cgpaMax: 6.8,
+      description: "WILP program, good for consistent performers."
+    },
+    {
+      name: "Accenture",
+      type: "Global Professional Services",
+      skills: ["OOP", "SQL", "Web Basics", "Agile", "Communication"],
+      cgpaMin: 6.0,
+      cgpaMax: 7.0,
+      description: "High volume hiring, diverse tech roles."
+    },
+    {
+      name: "Amazon",
+      type: "E-commerce & Cloud (Product)",
+      skills: ["DSA", "System Design", "Problem Solving", "Leadership", "OS"],
+      cgpaMin: 7.0,
+      cgpaMax: 7.9,
+      description: "SDE roles, focus on algorithms & scalability."
+    },
+    {
+      name: "Google",
+      type: "Tech Giant (Product)",
+      skills: ["DSA", "Algorithm Design", "ML / Cloud", "System Design", "Python", "Go"],
+      cgpaMin: 7.5,
+      cgpaMax: 10.0,
+      description: "Elite SWE roles, innovation driven."
+    },
+    {
+      name: "Microsoft",
+      type: "Product & Enterprise",
+      skills: ["DSA", "OOP", "System Design", "Azure", "C#", "Problem Solving"],
+      cgpaMin: 7.2,
+      cgpaMax: 8.5,
+      description: "Global leader, strong engineering culture."
+    },
+    {
+      name: "Goldman Sachs",
+      type: "Fintech & Investment",
+      skills: ["DSA", "OOP", "SQL", "Financial Domain", "Problem Solving"],
+      cgpaMin: 7.5,
+      cgpaMax: 9.0,
+      description: "High frequency trading, engineering division."
+    },
+    {
+      name: "Cognizant",
+      type: "Technology Services",
+      skills: ["OOP", "SQL", "Aptitude", "Java", "Communication"],
+      cgpaMin: 6.0,
+      cgpaMax: 6.7,
+      description: "Strong learning & development programs."
+    },
+    {
+      name: "Adobe",
+      type: "Creative Software (Product)",
+      skills: ["DSA", "OOP", "C++", "System Design", "Computer Graphics"],
+      cgpaMin: 7.2,
+      cgpaMax: 8.5,
+      description: "Innovative product roles, great work culture."
+    }
+  ];
+
+  // Helper to normalize skills (case-insensitive match)
+  function normalizeSkillArray(skillStr) {
+    if (!skillStr || skillStr.trim() === "") return [];
+    return skillStr.split(",").map(s => s.trim().toLowerCase()).filter(s => s.length > 0);
+  }
+
+  // Filter companies based on CGPA and user skills (at least ONE skill matches)
+  function getFilteredCompanies(userCgpa, userSkillsArray) {
+    if (isNaN(userCgpa)) return [];
+    return companies.filter(company => {
+      // CGPA condition: within range inclusive
+      const cgpaValid = (userCgpa >= company.cgpaMin && userCgpa <= company.cgpaMax);
+      if (!cgpaValid) return false;
+      
+      // if user didn't provide any skill, we treat as "no skill filter" -> match only cgpa? 
+      // professional: we consider skill match only if skills array has entries, else show based on cgpa (more inclusive)
+      if (userSkillsArray.length === 0) {
+        // No skills entered -> only CGPA filter applied (more suggestions)
+        return true;
+      }
+      
+      // Check intersection: at least one company skill matches user skill (case-insensitive)
+      const companySkillsLower = company.skills.map(s => s.toLowerCase());
+      const hasMatchingSkill = userSkillsArray.some(userSkill => 
+        companySkillsLower.includes(userSkill)
+      );
+      return hasMatchingSkill;
+    });
+  }
+
+  // render company cards to the grid
+  function renderCompanyCards(companiesToRender, filterActive = true) {
+    const grid = document.getElementById("companiesGrid");
+    grid.innerHTML = "";
+    
+    if (!companiesToRender.length) {
+      const emptyDiv = document.createElement("div");
+      emptyDiv.className = "empty-state";
+      emptyDiv.innerHTML = `
+        <i class="fas fa-building"></i>
+        <h4>No matching companies found</h4>
+        <p style="margin-top: 0.5rem; color:#5c6f87;">Try adjusting your CGPA range or add more skills like DSA, Python, SQL, System Design.</p>
+        <button class="btn-outline" id="suggestionReset" style="margin-top: 1.2rem; background:white;"><i class="fas fa-undo-alt"></i> Show all companies</button>
+      `;
+      grid.appendChild(emptyDiv);
+      const resetSuggestionBtn = document.getElementById("suggestionReset");
+      if (resetSuggestionBtn) {
+        resetSuggestionBtn.addEventListener("click", () => {
+          document.getElementById("cgpaInput").value = "";
+          document.getElementById("skillsInput").value = "";
+          resetToFullView();
+        });
+      }
+      return;
+    }
+    
+    companiesToRender.forEach(comp => {
+      const card = document.createElement("div");
+      card.className = "company-card";
+      // card inner structure
+      card.innerHTML = `
+        <div class="card-header">
+          <span class="company-name">${escapeHtml(comp.name)}</span>
+          <span class="company-type">${escapeHtml(comp.type)}</span>
+        </div>
+        <div class="card-body">
+          <div class="skill-section">
+            <div class="skill-label"><i class="fas fa-microchip"></i> Required expertise</div>
+            <div class="tags">
+              ${comp.skills.map(skill => `<span class="tag">${escapeHtml(skill)}</span>`).join('')}
+            </div>
+          </div>
+          <div class="cgpa-range">
+            <i class="fas fa-chart-simple"></i>
+            <span class="cgpa-text">CGPA eligibility: ${comp.cgpaMin} – ${comp.cgpaMax}</span>
+          </div>
+          <p style="font-size: 0.75rem; margin-top: 12px; color:#4c6a8a;"><i class="fas fa-info-circle"></i> ${escapeHtml(comp.description)}</p>
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+  }
+  
+  // simple XSS protection
+  function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+      if (m === '&') return '&amp;';
+      if (m === '<') return '&lt;';
+      if (m === '>') return '&gt;';
+      return m;
+    }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
+      return c;
+    });
+  }
+  
+  // update UI with filtered results and banner
+  function updateRecommendations() {
+    let rawCgpa = document.getElementById("cgpaInput").value.trim();
+    const rawSkills = document.getElementById("skillsInput").value;
+    
+    let userCgpa = parseFloat(rawCgpa);
+    const isValidCgpa = !isNaN(userCgpa) && userCgpa >= 0 && userCgpa <= 10 && rawCgpa !== "";
+    
+    const userSkillsArray = normalizeSkillArray(rawSkills);
+    
+    let finalCompanies = [];
+    let bannerMessage = "";
+    let bannerIcon = '<i class="fas fa-chart-line"></i>';
+    
+    if (!isValidCgpa) {
+      // No valid CGPA: show warning and display all companies (no filter)
+      finalCompanies = companies;
+      bannerMessage = "⚠️ Please enter a valid CGPA (0–10) to see personalized matches. Showing all companies.";
+      document.getElementById("counterBadge").innerHTML = `${finalCompanies.length} total companies`;
+      renderCompanyCards(finalCompanies);
+      document.getElementById("messageSpan").innerHTML = bannerMessage;
+      return;
+    }
+    
+    // Valid CGPA scenario
+    finalCompanies = getFilteredCompanies(userCgpa, userSkillsArray);
+    
+    // generate intelligent message
+    const skillHint = userSkillsArray.length ? `${userSkillsArray.length} skill${userSkillsArray.length !== 1 ? 's' : ''} provided` : "no skills specified";
+    if (finalCompanies.length === 0) {
+      bannerMessage = `📌 No matches for CGPA ${userCgpa} with ${skillHint}. Try broadening skills or CGPA range.`;
+      document.getElementById("counterBadge").innerHTML = `0 matches`;
+    } else {
+      bannerMessage = `✨ ${finalCompanies.length} company${finalCompanies.length !== 1 ? 's' : ''} aligned with your profile (CGPA: ${userCgpa} | ${skillHint}).`;
+      document.getElementById("counterBadge").innerHTML = `${finalCompanies.length} match${finalCompanies.length !== 1 ? 'es' : ''}`;
+    }
+    document.getElementById("messageSpan").innerHTML = bannerMessage;
+    renderCompanyCards(finalCompanies);
+  }
+  
+  // reset to full catalog (showing all companies) and clear filter fields
+  function resetToFullView() {
+    document.getElementById("cgpaInput").value = "";
+    document.getElementById("skillsInput").value = "";
+    // render all companies, and update banner to default state
+    renderCompanyCards(companies);
+    document.getElementById("messageSpan").innerHTML = "🎓 Browse all top employers — enter your CGPA & skills to get personalized suggestions.";
+    document.getElementById("counterBadge").innerHTML = `${companies.length} total companies`;
+    // also clear any previous invalid state
+  }
+  
+  // live handler: match button
+  function onMatchClick() {
+    const cgpaVal = document.getElementById("cgpaInput").value.trim();
+    if (cgpaVal === "") {
+      // custom: no cgpa entered - show friendly warning but still show all companies?
+      document.getElementById("messageSpan").innerHTML = "📊 Enter your CGPA first for accurate recommendations. Showing all companies below.";
+      document.getElementById("counterBadge").innerHTML = `${companies.length} total companies`;
+      renderCompanyCards(companies);
+      return;
+    }
+    updateRecommendations();
+  }
+  
+  // add real-time suggestion? but match button explicit for pro UX
+  document.addEventListener("DOMContentLoaded", () => {
+    // initial load: show all companies (default professional view)
+    renderCompanyCards(companies);
+    document.getElementById("counterBadge").innerHTML = `${companies.length} total companies`;
+    document.getElementById("messageSpan").innerHTML = "🔍 Input your CGPA and key skills to discover best-fit companies.";
+    
+    // attach event listeners
+    const matchBtn = document.getElementById("matchBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    matchBtn.addEventListener("click", onMatchClick);
+    resetBtn.addEventListener("click", resetToFullView);
+    
+    // optional: pressing Enter in any input triggers match
+    const cgpaField = document.getElementById("cgpaInput");
+    const skillField = document.getElementById("skillsInput");
+    const triggerMatch = (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        onMatchClick();
+      }
+    };
+    cgpaField.addEventListener("keypress", triggerMatch);
+    skillField.addEventListener("keypress", triggerMatch);
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PlaceBridge — Apply for Companies</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #070b14;
+            --surface: rgba(255, 255, 255, 0.05);
+            --border: rgba(255, 255, 255, 0.08);
+            --text: white;
+            --text-muted: #8492a6;
+            --accent: #1a4bff;
+            --accent-hover: #0d2db5;
+            --success: #00c853;
+            --danger: #ff4d4d;
+            --warning: #ffcc00;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        header {
+            padding: 20px 60px;
+            font-family: 'Syne', sans-serif;
+            font-size: 22px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .container {
+            padding: 40px 60px;
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            font-family: 'Syne', sans-serif;
+            margin-bottom: 30px;
+            font-weight: 700;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 25px;
+            backdrop-filter: blur(20px);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+        }
+
+        .company {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #e0e0e0;
+        }
+
+        .role {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .package,
+        .location {
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .badge {
+            display: inline-block;
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-weight: 500;
+            margin-bottom: 12px;
+        }
+
+        .badge.eligible {
+            background: var(--success);
+            color: #070b14;
+        }
+
+        .badge.applied {
+            background: var(--accent);
+            color: white;
+        }
+
+        .badge.not-eligible {
+            background: var(--danger);
+            color: white;
+        }
+
+        .low-cgpa-warning {
+            color: var(--warning);
+            font-size: 15px;
+            margin-top: 12px;
+            margin-bottom: -15px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: var(--accent);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        button:hover:not(:disabled) {
+            background: var(--accent-hover);
+        }
+
+        .card.not-eligible button {
+            background: #555 !important;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        @media (max-width: 700px) {
+
+            header,
+            .container {
+                padding: 20px;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>PlaceBridge — Apply for Companies</header>
+
+    <div class="container">
+        <h2>Available Companies</h2>
+        <div class="grid" id="companyGrid"></div>
+    </div>
+
+    <script>
+        // auth: check logged-in user
+        const user = JSON.parse(localStorage.getItem("pb_logged_user"));
+        if (!user) {
+            window.location.href = "studentlogin.html";
+        }
+
+        const userCGPA = parseFloat(user.cgpa || user.sgpa || 0);
+        const userBranch = (user.branch || "").trim();
+        let appliedCompanies = JSON.parse(localStorage.getItem("pb_applied_companies") || "[]");
+
+        // example companies data
+        const companies = [
+            {
+                id: 1,
+                name: "TCS",
+                role: "Software Engineer",
+                package: "7 LPA",
+                minCGPA: 6.5,
+                branches: ["CSE", "IT", "ENTC"],
+                location: "Pune",
+                process: ["Aptitude Test", "Technical Interview", "HR Interview"]
+            },
+            {
+                id: 2,
+                name: "Infosys",
+                role: "System Engineer",
+                package: "6.5 LPA",
+                minCGPA: 6.0,
+                branches: ["CSE", "IT"],
+                location: "Bangalore",
+                process: ["Online Test", "Technical Round", "HR Round"]
+            },
+            {
+                id: 3,
+                name: "Wipro",
+                role: "Project Engineer",
+                package: "6 LPA",
+                minCGPA: 7.0,
+                branches: ["CSE"],
+                location: "Hyderabad",
+                process: ["Coding Test", "Tech Interview", "HR"]
+            },
+            {
+                id: 4,
+                name: "Accenture",
+                role: "Associate Developer",
+                package: "8 LPA",
+                minCGPA: 7.5,
+                branches: ["CSE", "IT"],
+                location: "Mumbai",
+                process: ["Aptitude", "Technical", "Managerial"]
+            }
+        ];
+
+        const grid = document.getElementById("companyGrid");
+
+        function renderCompanies() {
+            grid.innerHTML = "";
+
+            // add warning if CGPA < 6
+            if (userCGPA < 6) {
+                const warning = document.createElement("p");
+                warning.classList.add("low-cgpa-warning");
+                warning.innerText =
+                    "Your CGPA/SGPA is below 6. You can view companies but cannot apply.";
+                grid.appendChild(warning);
+            }
+
+            companies.forEach((company) => {
+                const eligible =
+                    userCGPA >= 6 &&
+                    userCGPA >= company.minCGPA &&
+                    company.branches.includes(userBranch);
+
+                const applied = appliedCompanies.some((c) => c.id === company.id);
+
+                const card = document.createElement("div");
+                card.className = `card ${eligible ? "" : "not-eligible"}`;
+
+                let badgeClass = applied ? "applied" : eligible ? "eligible" : "not-eligible";
+                let actionText = applied ? "Applied" : eligible ? "Apply Now" : "Not Eligible";
+
+                card.innerHTML = `
+          <span class="badge ${badgeClass}">${actionText}</span>
+          <div class="company">${company.name}</div>
+          <div class="role">${company.role}</div>
+          <div class="package">Package: ${company.package}</div>
+          <div class="location">Location: ${company.location}</div>
+          <button ${eligible ? "" : "disabled"}>
+            ${applied ? "Applied" : eligible ? "Apply Now" : "Not Eligible"}
+          </button>
+        `;
+
+                // click card to open detail page (only if eligible)
+                if (eligible) {
+                    card.addEventListener("click", (e) => {
+                        if (e.target.tagName.toLowerCase() !== "button") {
+                            localStorage.setItem("pb_selected_company", JSON.stringify(company));
+                            window.location.href = "company_detail.html";
+                        }
+                    });
+
+                    const btn = card.querySelector("button");
+                    if (!applied) {
+                        btn.addEventListener("click", () => {
+                            localStorage.setItem("pb_selected_company", JSON.stringify(company));
+                            window.location.href = "company_detail.html";
+                        });
+                    }
+                }
+
+                grid.appendChild(card);
+            });
+        }
+
+        renderCompanies();
+    </script>
+</body>
+
+</html>

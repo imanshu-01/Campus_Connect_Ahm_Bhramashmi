@@ -1,0 +1,10 @@
+body{margin:0;font-family:'DM Sans',sans-serif;background:#070b14;display:flex;align-items:center;justify-content:center;height:100vh;}
+.card{width:420px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:40px;backdrop-filter:blur(20px);}
+h2{color:#fff;margin-bottom:8px;font-family:'Syne';}
+.sub{color:#8492a6;margin-bottom:20px;font-size:13px;}
+input{width:100%;padding:12px;margin-bottom:14px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#fff;}
+input:focus{outline:none;border-color:#1a4bff;box-shadow:0 0 0 3px rgba(26,75,255,.2);}
+button{width:100%;padding:14px;background:#1a4bff;border:none;border-radius:12px;color:#fff;font-weight:600;cursor:pointer;}
+button:hover{background:#0d2db5;}
+.switch{margin-top:18px;color:#8492a6;text-align:center;}
+.switch a{color:#00d4ff;text-decoration:none;}

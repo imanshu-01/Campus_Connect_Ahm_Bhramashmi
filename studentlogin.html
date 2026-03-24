@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PlaceBridge — Student Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+body{
+    margin:0;
+    font-family:'DM Sans',sans-serif;
+    background:#070b14;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    height:100vh;
+}
+.card{
+    width:420px;
+    background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:20px;
+    padding:40px;
+    backdrop-filter:blur(20px);
+}
+h2{color:#fff;font-family:'Syne',sans-serif;margin-bottom:8px;}
+.sub{color:#8492a6;margin-bottom:20px;font-size:13px;}
+input{
+    width:100%;
+    padding:12px;
+    margin-bottom:14px;
+    border-radius:10px;
+    border:1px solid rgba(255,255,255,.1);
+    background:rgba(255,255,255,.05);
+    color:#fff;
+}
+button{
+    width:100%;
+    padding:14px;
+    background:#1a4bff;
+    border:none;
+    border-radius:12px;
+    color:#fff;
+    font-weight:600;
+    cursor:pointer;
+}
+button:hover{background:#0d2db5;}
+.switch{margin-top:18px;color:#8492a6;text-align:center;font-size:13px;}
+.switch a{color:#00d4ff;text-decoration:none;}
+</style>
+</head>
+<body>
+
+<div class="card">
+<h2>Sign In</h2>
+<div class="sub">Access your placement dashboard.</div>
+
+<input type="email" id="email" placeholder="College Email">
+<input type="password" id="password" placeholder="Password">
+
+<button onclick="login()">Sign In</button>
+
+<div class="switch">
+Don’t have an account? 
+<a href="registration.html">Register</a>
+</div>
+</div>
+
+<script>
+const USERS_KEY = "pb_users";
+const LOGGED_KEY = "pb_logged_user";
+
+// 🔁 Auto redirect if already logged in
+if(localStorage.getItem(LOGGED_KEY)){
+    window.location.replace("home.html");
+}
+
+// 🔐 Login function
+function login(){
+
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+
+    const email = emailInput.value.trim().toLowerCase();
+    const password = passwordInput.value;
+
+    if(!email || !password){
+        alert("Please fill all fields");
+        return;
+    }
+
+    // Get stored users
+    let users = JSON.parse(localStorage.getItem(USERS_KEY)) || [];
+
+    // If no users exist (first time), create sample structure
+    if(users.length === 0){
+        console.log("No users found in localStorage");
+    }
+
+    // Find user by email
+    const user = users.find(u => u.email.toLowerCase() === email);
+
+    if(!user){
+        alert("No account found with this email");
+        return;
+    }
+
+    // Check password
+    if(user.password !== password){
+        alert("Incorrect password");
+        return;
+    }
+
+    // ✅ Store full user object
+    localStorage.setItem(LOGGED_KEY, JSON.stringify({
+        id: user.id || Date.now(),
+        name: user.name,
+        email: user.email,
+        phone: user.phone || "",
+        branch: user.branch || "",
+        cgpa: user.cgpa || "",
+        skills: user.skills || "",
+        password: user.password
+    }));
+
+    // Redirect
+    window.location.href = "home.html";
+}
+</script>
+
+</body>
+</html>

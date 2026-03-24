@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PlaceBridge — Company Details</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+body{
+    margin:0;
+    font-family:'DM Sans',sans-serif;
+    background:#f4f6f9;
+    color:#111;
+}
+
+/* NAVBAR */
+nav{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:20px 60px;
+    background:white;
+    border-bottom:1px solid #eee;
+}
+
+.logo{
+    font-family:'Syne',sans-serif;
+    font-size:22px;
+    font-weight:700;
+}
+
+/* MAIN */
+.container{
+    padding:50px 60px;
+}
+
+.card{
+    background:white;
+    border-radius:18px;
+    padding:45px;
+    box-shadow:0 10px 40px rgba(0,0,0,0.06);
+}
+
+h2{
+    font-family:'Syne',sans-serif;
+    margin-bottom:10px;
+}
+
+p{
+    margin:6px 0;
+}
+
+.section{
+    margin-top:30px;
+}
+
+.section h4{
+    margin-bottom:10px;
+}
+
+ul{
+    padding-left:20px;
+    color:#555;
+}
+
+.badge{
+    display:inline-block;
+    padding:8px 14px;
+    border-radius:8px;
+    font-size:13px;
+    margin-top:15px;
+    font-weight:600;
+}
+
+.eligible{
+    background:#e6f9ed;
+    color:#00a63e;
+}
+
+.not-eligible{
+    background:#fdecea;
+    color:#d93025;
+}
+
+button{
+    margin-top:30px;
+    padding:14px 20px;
+    border:none;
+    border-radius:10px;
+    background:#1a4bff;
+    color:white;
+    font-weight:600;
+    cursor:pointer;
+    font-size:14px;
+}
+
+button:hover{
+    background:#0d2db5;
+}
+
+button:disabled{
+    background:#999;
+    cursor:not-allowed;
+}
+
+.back-btn{
+    background:#eee;
+    color:#333;
+    margin-right:10px;
+}
+
+.back-btn:hover{
+    background:#ddd;
+}
+</style>
+</head>
+<body>
+
+<nav>
+    <div class="logo">PlaceBridge</div>
+    <div>
+        <button class="back-btn" onclick="goBack()">Back</button>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="card" id="companyCard"></div>
+</div>
+
+<script>
+const user = JSON.parse(localStorage.getItem("pb_logged_user"));
+const selectedCompany = JSON.parse(localStorage.getItem("pb_selected_company"));
+const APPLICATION_KEY = "pb_applications";
+
+// Security checks
+if(!user){
+    window.location.href = "studentlogin.html";
+}
+
+if(!selectedCompany){
+    window.location.href = "apply.html";
+}
+
+let applications = JSON.parse(localStorage.getItem(APPLICATION_KEY)) || [];
+
+// Check if already applied
+const alreadyApplied = applications.find(a =>
+    a.userEmail === user.email && a.companyId === selectedCompany.id
+);
+
+// Eligibility Check
+let eligible = true;
+let reason = "";
+
+// CGPA check
+if(parseFloat(user.cgpa || 0) < selectedCompany.minCGPA){
+    eligible = false;
+    reason = "Your CGPA is below required criteria.";
+}
+
+const card = document.getElementById("companyCard");
+
+card.innerHTML = `
+    <h2>${selectedCompany.name}</h2>
+    <p><strong>Role:</strong> ${selectedCompany.role}</p>
+    <p><strong>Package:</strong> ${selectedCompany.package}</p>
+    <p><strong>Job Location:</strong> ${selectedCompany.location}</p>
+
+    <div class="section">
+        <h4>Eligibility Criteria</h4>
+        <ul>
+            <li>Minimum CGPA Required: ${selectedCompany.minCGPA}</li>
+            <li>Required Skills: ${selectedCompany.skills.join(", ")}</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h4>Selection Process</h4>
+        <ul>
+            ${selectedCompany.process.map(step => `<li>${step}</li>`).join("")}
+        </ul>
+    </div>
+
+    <div class="section">
+        ${
+            alreadyApplied
+            ? `<div class="badge eligible">You Already Applied</div>`
+            : eligible
+                ? `<div class="badge eligible">You Are Eligible</div>`
+                : `<div class="badge not-eligible">${reason}</div>`
+        }
+    </div>
+
+    ${
+        alreadyApplied
+        ? ""
+        : `<button ${eligible ? "" : "disabled"} onclick="applyNow()">
+            ${eligible ? "Confirm & Apply" : "Not Eligible"}
+           </button>`
+    }
+`;
+
+function applyNow(){
+
+    applications.push({
+        userEmail:user.email,
+        companyId:selectedCompany.id,
+        companyName:selectedCompany.name,
+        role:selectedCompany.role,
+        package:selectedCompany.package,
+        status:"Pending",
+        appliedDate:new Date().toLocaleDateString()
+    });
+
+    localStorage.setItem(APPLICATION_KEY, JSON.stringify(applications));
+
+    alert("Application Submitted Successfully!");
+    window.location.href = "apply.html";
+}
+
+function goBack(){
+    window.location.href = "apply.html";
+}
+</script>
+
+</body>
+</html>

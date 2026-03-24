@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>PlaceBridge | Resume Eligibility & Application Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, 'Roboto', sans-serif;
+            background: linear-gradient(145deg, #eef2f9 0%, #e0e8f2 100%);
+            min-height: 100vh;
+            padding: 32px 24px;
+        }
+
+        /* Professional main container */
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header Modern */
+        .modern-header {
+            background: linear-gradient(135deg, #0B2B40 0%, #1A4A5F 100%);
+            border-radius: 28px;
+            padding: 28px 36px;
+            margin-bottom: 32px;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.2);
+        }
+
+        .header-content h1 {
+            font-size: 1.9rem;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            background: linear-gradient(120deg, #FFFFFF, #D9EAF5);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .header-content p {
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        /* Two column grid layout */
+        .eligibility-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 28px;
+            margin-bottom: 32px;
+        }
+
+        /* Universal card style */
+        .professional-card {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 28px;
+            box-shadow: 0 12px 28px -8px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.02);
+            padding: 28px 30px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+
+        .professional-card:hover {
+            box-shadow: 0 20px 32px -12px rgba(0, 0, 0, 0.12);
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0B2B40;
+            border-left: 5px solid #2C7DA0;
+            padding-left: 18px;
+            margin-bottom: 24px;
+            letter-spacing: -0.2px;
+        }
+
+        /* Form styling */
+        .form-group {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #1e3a4d;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input, .form-group textarea {
+            padding: 12px 16px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 18px;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            background: #fefefe;
+            font-family: inherit;
+        }
+
+        .form-group input:focus {
+            border-color: #2C7DA0;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(44,125,160,0.15);
+        }
+
+        /* ========== ENHANCED UPLOAD BUTTON (Small & Elegant with format hint inside) ========== */
+        .upload-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .upload-btn-custom {
+            background: #f0f4fa;
+            border: 1.5px dashed #9bb7d0;
+            border-radius: 40px;
+            padding: 10px 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #1F5E7A;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            background-color: #f8fafd;
+        }
+
+        .upload-btn-custom:hover {
+            background: #e6edf6;
+            border-color: #2C7DA0;
+            transform: translateY(-1px);
+        }
+
+        .upload-icon {
+            font-size: 1.1rem;
+        }
+
+        /* hide default file input */
+        #resume {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+            visibility: hidden;
+        }
+
+        .file-format-hint {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 12px;
+            margin-top: 10px;
+            padding: 6px 12px;
+            background: #f4f9fe;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            color: #4b6e8a;
+            width: 100%;
+            flex-wrap: wrap;
+        }
+
+        .format-badge {
+            background: #e4edf5;
+            padding: 4px 10px;
+            border-radius: 30px;
+            font-weight: 500;
+            font-family: monospace;
+            font-size: 0.7rem;
+            color: #1a4a5f;
+        }
+
+        .selected-file-name {
+            font-size: 0.7rem;
+            color: #2C7DA0;
+            font-weight: 500;
+            margin-left: auto;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 160px;
+        }
+
+        /* Button styles */
+        .btn-primary {
+            background: linear-gradient(95deg, #1F5E7A 0%, #2C7DA0 100%);
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            width: 100%;
+            margin-top: 8px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 18px -8px rgba(44,125,160,0.4);
+            background: linear-gradient(95deg, #175a74, #236f8f);
+        }
+
+        .btn-secondary {
+            background: #f0f4f9;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            color: #1F5E7A;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background: #e2eaf1;
+            transform: scale(0.97);
+        }
+
+        /* Result cards */
+        .result-card {
+            margin-top: 20px;
+            border-radius: 20px;
+            overflow: hidden;
+            animation: fadeInUp 0.3s ease;
+        }
+
+        .eligibility-item {
+            padding: 16px 18px;
+            margin-bottom: 12px;
+            border-radius: 18px;
+            background: #ffffff;
+            border-left: 5px solid;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+        }
+
+        .eligibility-item.success {
+            background: #ecfdf5;
+            border-left-color: #10b981;
+        }
+
+        .eligibility-item.fail {
+            background: #fef2f2;
+            border-left-color: #ef4444;
+        }
+
+        .company-badge {
+            font-weight: 800;
+            font-size: 1rem;
+            color: #0f2c38;
+        }
+
+        .reason-text {
+            font-size: 0.75rem;
+            color: #6c757d;
+            margin-top: 6px;
+        }
+
+        .apply-btn-sm {
+            background: #2C7DA0;
+            border: none;
+            color: white;
+            padding: 6px 16px;
+            border-radius: 50px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: 0.2s;
+        }
+
+        .apply-btn-sm:hover {
+            background: #1F5E7A;
+        }
+
+        /* Table styling */
+        .applications-table-wrapper {
+            overflow-x: auto;
+            border-radius: 20px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        .data-table th {
+            text-align: left;
+            padding: 16px 12px;
+            background: #f8fafc;
+            color: #1e3a4d;
+            font-weight: 700;
+            border-bottom: 2px solid #e2edf2;
+        }
+
+        .data-table td {
+            padding: 14px 12px;
+            border-bottom: 1px solid #ecf3f8;
+            color: #1f2f3a;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.7rem;
+        }
+
+        .status-applied { background: #e0f2fe; color: #0369a1; }
+        .status-pending { background: #fff3e3; color: #b45309; }
+        .status-shortlisted { background: #dcfce7; color: #15803d; }
+        .status-rejected { background: #fee2e2; color: #b91c1c; }
+
+        .empty-state {
+            text-align: center;
+            padding: 48px 20px;
+            color: #6f8faa;
+            font-style: italic;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 880px) {
+            .eligibility-grid {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+            body {
+                padding: 20px 16px;
+            }
+            .professional-card {
+                padding: 22px;
+            }
+            .selected-file-name {
+                max-width: 120px;
+            }
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 0.75rem;
+            color: #5d6f83;
+        }
+    </style>
+</head>
+<body>
+
+<div class="dashboard-container">
+    <!-- Modern Header -->
+    <div class="modern-header">
+        <div class="header-content">
+            <h1>🏢 PlaceBridge · Resume Eligibility Suite</h1>
+            <p>Intelligent placement assistant | Smart company matching & application tracker</p>
+        </div>
+    </div>
+
+    <!-- Two column grid -->
+    <div class="eligibility-grid">
+        <!-- Left Card: Eligibility Checker with IMPROVED UPLOAD BUTTON (small & format hint inside) -->
+        <div class="professional-card">
+            <div class="card-title">📄 1. Profile & Eligibility</div>
+            
+            <!-- UPLOAD SECTION - Custom compact button with inline format info -->
+            <div class="form-group">
+                <label>📎 Upload Resume (PDF, JPG, PNG, DOC)</label>
+                <div class="upload-wrapper">
+                    <button type="button" class="upload-btn-custom" id="customUploadBtn">
+                        <span class="upload-icon">📁</span> 
+                        <span id="uploadBtnText">Choose file</span>
+                    </button>
+                    <input type="file" id="resume" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.JPG,.PNG,.JPEG">
+                </div>
+                <!-- File format hint inside upload area: badges & selected file name -->
+                <div class="file-format-hint" id="fileFormatHint">
+                    <span>📄 Allowed:</span>
+                    <span class="format-badge">PDF</span>
+                    <span class="format-badge">JPG/JPEG</span>
+                    <span class="format-badge">PNG</span>
+                    <span class="format-badge">DOC/DOCX</span>
+                    <span id="selectedFileName" class="selected-file-name">No file chosen</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>📊 CGPA / Percentage</label>
+                <input type="number" id="cgpa" step="0.01" placeholder="e.g., 7.5" value="7.2">
+            </div>
+            <div class="form-group">
+                <label>⚙️ Technical Skills (comma separated)</label>
+                <input type="text" id="skills" placeholder="python, sql, java, react" value="python, sql">
+            </div>
+            <div class="form-group">
+                <label>⚠️ Active Backlogs</label>
+                <input type="number" id="backlogs" placeholder="0" value="0">
+            </div>
+            <button class="btn-primary" onclick="checkEligibility()">🔍 Check Eligibility & Match</button>
+            <div id="result" class="result-card"></div>
+        </div>
+
+        <!-- Right Card: My Applications -->
+        <div class="professional-card">
+            <div class="card-title">📋 2. My Applications Timeline</div>
+            <div class="applications-table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr><th>Company</th><th>Role</th><th>Status</th></tr>
+                    </thead>
+                    <tbody id="applicationTable">
+                        <tr><td colspan="3" class="empty-state">✨ No applications yet — check eligibility & apply</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div style="margin-top: 18px; text-align: right;">
+                <button class="btn-secondary" onclick="clearApplications()">🗑️ Clear History</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Hiring Drives Table -->
+    <div class="professional-card" style="margin-top: 0;">
+        <div class="card-title">🏆 Active Hiring Drives (Eligibility Matrix)</div>
+        <div class="applications-table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr><th>Company</th><th>Role</th><th>Min CGPA</th><th>Required Skills</th><th>Max Backlogs</th></tr>
+                </thead>
+                <tbody id="companyTablePreview"></tbody>
+            </table>
+        </div>
+        <div style="margin-top: 12px; font-size: 0.7rem; color:#4b6b85;">* Based on your profile, system shows real-time eligibility above</div>
+    </div>
+    <footer>🔍 PlaceBridge Smart Eligibility Engine | Real-time matching & application tracker</footer>
+</div>
+
+<script>
+    // ---------- Enhanced Company Dataset ----------
+    let companies = [
+        { name: "Accenture", role: "Data Analyst", cgpa: 7.0, skills: ["python", "sql"], backlogs: 0 },
+        { name: "TCS", role: "Software Developer", cgpa: 6.5, skills: ["java", "sql"], backlogs: 1 },
+        { name: "Infosys", role: "System Engineer", cgpa: 6.0, skills: ["python", "java"], backlogs: 2 },
+        { name: "Wipro", role: "Project Engineer", cgpa: 6.8, skills: ["java", "react"], backlogs: 1 },
+        { name: "Cognizant", role: "Full Stack Trainee", cgpa: 7.2, skills: ["javascript", "python"], backlogs: 0 },
+        { name: "Capgemini", role: "Analyst", cgpa: 7.0, skills: ["sql", "excel"], backlogs: 0 },
+        { name: "Deloitte", role: "Technology Consultant", cgpa: 7.5, skills: ["python", "sql", "communication"], backlogs: 0 }
+    ];
+
+    let applications = [];
+
+    // Render company preview table
+    function renderCompanyPreview() {
+        const tbody = document.getElementById("companyTablePreview");
+        if (!tbody) return;
+        tbody.innerHTML = "";
+        companies.forEach(comp => {
+            const row = tbody.insertRow();
+            row.insertCell(0).innerText = comp.name;
+            row.insertCell(1).innerText = comp.role;
+            row.insertCell(2).innerText = comp.cgpa;
+            row.insertCell(3).innerText = comp.skills.join(", ").toUpperCase();
+            row.insertCell(4).innerText = comp.backlogs;
+        });
+    }
+
+    // Core eligibility check
+    function checkEligibility() {
+        let cgpaInput = document.getElementById("cgpa").value;
+        let skillsInput = document.getElementById("skills").value;
+        let backlogsInput = document.getElementById("backlogs").value;
+
+        let cgpa = parseFloat(cgpaInput);
+        let backlogs = parseInt(backlogsInput);
+        let skillsArray = skillsInput.toLowerCase().split(",").map(s => s.trim()).filter(s => s !== "");
+
+        if (isNaN(cgpa) || cgpa < 0 || cgpa > 10) {
+            showInlineResultError("⚠️ Please enter valid CGPA (0-10)");
+            return;
+        }
+        if (isNaN(backlogs) || backlogs < 0) {
+            showInlineResultError("⚠️ Backlogs must be a positive number");
+            return;
+        }
+
+        const resultDiv = document.getElementById("result");
+        resultDiv.innerHTML = "";
+        let eligibleFound = false;
+        let outputHtml = `<div style="margin-bottom: 12px; font-weight: 600; color:#1a4a5f;">🎯 Eligibility Results (Sequential Match)</div>`;
+
+        companies.forEach(company => {
+            let reasons = [];
+            let isEligible = true;
+
+            if (cgpa < company.cgpa) {
+                reasons.push(`CGPA ${cgpa} < required ${company.cgpa}`);
+                isEligible = false;
+            }
+            if (backlogs > company.backlogs) {
+                reasons.push(`Backlogs ${backlogs} > allowed ${company.backlogs}`);
+                isEligible = false;
+            }
+            const hasMatchingSkill = company.skills.some(reqSkill => 
+                skillsArray.includes(reqSkill.toLowerCase())
+            );
+            if (skillsArray.length === 0) {
+                reasons.push(`No skills provided — required: ${company.skills.join(", ")}`);
+                isEligible = false;
+            } else if (!hasMatchingSkill) {
+                reasons.push(`Missing required skills: need at least one of [${company.skills.join(", ")}]`);
+                isEligible = false;
+            }
+
+            if (!isEligible) {
+                outputHtml += `
+                    <div class="eligibility-item fail">
+                        <div class="company-badge">❌ ${company.name} · ${company.role}</div>
+                        <div class="reason-text">Reason: ${reasons.join("; ")}</div>
+                    </div>
+                `;
+            } else {
+                eligibleFound = true;
+                outputHtml += `
+                    <div class="eligibility-item success">
+                        <div class="company-badge">✅ ${company.name} – ${company.role}</div>
+                        <div class="reason-text">✨ You meet all criteria (CGPA ≥ ${company.cgpa}, backlogs ≤ ${company.backlogs}, skills matched)</div>
+                        <button class="apply-btn-sm" onclick="applyJob('${company.name}', '${company.role}')">📌 Apply Now</button>
+                    </div>
+                `;
+            }
+        });
+
+        if (!eligibleFound && companies.length > 0) {
+            outputHtml += `<div class="eligibility-item fail" style="background:#fff5ea; border-left-color:#f59e0b;">
+                            <div class="company-badge">💡 No eligible companies yet</div>
+                            <div class="reason-text">Improve CGPA / acquire required skills or clear backlogs to unlock more drives</div>
+                          </div>`;
+        }
+        resultDiv.innerHTML = outputHtml;
+        resultDiv.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function showInlineResultError(message) {
+        const resultDiv = document.getElementById("result");
+        resultDiv.innerHTML = `<div class="eligibility-item fail" style="background:#fee2e2;">
+                                <div class="company-badge">⚠️ Input Error</div>
+                                <div class="reason-text">${message}</div>
+                               </div>`;
+    }
+
+    // Apply for job
+    function applyJob(companyName, roleName) {
+        const statusPool = [
+            { name: "Applied", class: "status-applied" }, 
+            { name: "Pending Review", class: "status-pending" },
+            { name: "Shortlisted", class: "status-shortlisted" },
+            { name: "Interview Scheduled", class: "status-shortlisted" }
+        ];
+        let randomStatusObj;
+        const rand = Math.random();
+        if (rand < 0.6) randomStatusObj = statusPool[0];
+        else if (rand < 0.8) randomStatusObj = statusPool[1];
+        else if (rand < 0.94) randomStatusObj = statusPool[2];
+        else randomStatusObj = { name: "Rejected", class: "status-rejected" };
+        
+        const alreadyApplied = applications.some(app => app.company === companyName && app.role === roleName);
+        if (alreadyApplied) {
+            showToastMessage(`⚠️ Already applied to ${companyName} (${roleName})`);
+            return;
+        }
+        
+        applications.unshift({ company: companyName, role: roleName, status: randomStatusObj.name, statusClass: randomStatusObj.class });
+        updateApplicationsTable();
+        showToastMessage(`✅ Application submitted to ${companyName} · Status: ${randomStatusObj.name}`);
+    }
+    
+    function updateApplicationsTable() {
+        const tableBody = document.getElementById("applicationTable");
+        if (!tableBody) return;
+        if (applications.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="3" class="empty-state">📭 No applications yet — start checking eligibility above</td></tr>`;
+            return;
+        }
+        tableBody.innerHTML = "";
+        applications.forEach(app => {
+            const row = tableBody.insertRow();
+            row.insertCell(0).innerHTML = `<strong>${escapeHtml(app.company)}</strong>`;
+            row.insertCell(1).innerHTML = escapeHtml(app.role);
+            let statusDisplay = `<span class="status-badge ${app.statusClass || 'status-applied'}">${escapeHtml(app.status)}</span>`;
+            row.insertCell(2).innerHTML = statusDisplay;
+        });
+    }
+    
+    function clearApplications() {
+        if (applications.length > 0 && confirm("🗑️ Clear all application history?")) {
+            applications = [];
+            updateApplicationsTable();
+            showToastMessage("🧹 Application history cleared");
+        } else if (applications.length === 0) {
+            showToastMessage("No applications to clear");
+        }
+    }
+    
+    function escapeHtml(str) { 
+        if(!str) return "";
+        return str.replace(/[&<>]/g, function(m) {
+            if(m === '&') return '&amp;';
+            if(m === '<') return '&lt;';
+            if(m === '>') return '&gt;';
+            return m;
+        });
+    }
+    
+    function showToastMessage(msg, bgHint) {
+        let toastContainer = document.getElementById("dynamic-toast");
+        if (!toastContainer) {
+            toastContainer = document.createElement("div");
+            toastContainer.id = "dynamic-toast";
+            toastContainer.style.position = "fixed";
+            toastContainer.style.bottom = "24px";
+            toastContainer.style.left = "50%";
+            toastContainer.style.transform = "translateX(-50%)";
+            toastContainer.style.background = "#0B2B40";
+            toastContainer.style.color = "white";
+            toastContainer.style.padding = "12px 24px";
+            toastContainer.style.borderRadius = "60px";
+            toastContainer.style.fontSize = "0.85rem";
+            toastContainer.style.fontWeight = "500";
+            toastContainer.style.boxShadow = "0 10px 20px rgba(0,0,0,0.2)";
+            toastContainer.style.zIndex = "9999";
+            toastContainer.style.borderLeft = "4px solid #2C7DA0";
+            document.body.appendChild(toastContainer);
+        }
+        toastContainer.innerText = msg;
+        toastContainer.style.display = "block";
+        setTimeout(() => { if(toastContainer) toastContainer.style.display = "none"; }, 2800);
+    }
+    
+    // --- Enhanced Upload Logic (small button + format hint) ---
+    function setupEnhancedUpload() {
+        const fileInput = document.getElementById("resume");
+        const customBtn = document.getElementById("customUploadBtn");
+        const selectedFileNameSpan = document.getElementById("selectedFileName");
+        
+        if (!fileInput || !customBtn) return;
+        
+        // Update button text & filename display
+        fileInput.addEventListener("change", function(e) {
+            const file = e.target.files[0];
+            const btnTextSpan = document.getElementById("uploadBtnText");
+            if (file) {
+                let fileName = file.name;
+                if (fileName.length > 28) fileName = fileName.substring(0, 25) + "...";
+                if (btnTextSpan) btnTextSpan.innerText = "✔️ " + fileName;
+                if (selectedFileNameSpan) {
+                    selectedFileNameSpan.innerHTML = `📄 ${file.name}`;
+                    selectedFileNameSpan.style.fontWeight = "500";
+                }
+                // Validate file type and show small feedback
+                const allowedExtensions = ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'];
+                const ext = file.name.split('.').pop().toLowerCase();
+                if (!allowedExtensions.includes(ext)) {
+                    showToastMessage("⚠️ Unsupported file type. Please upload PDF, JPG, PNG or DOC");
+                    fileInput.value = "";
+                    if (btnTextSpan) btnTextSpan.innerText = "Choose file";
+                    if (selectedFileNameSpan) selectedFileNameSpan.innerHTML = "No file chosen";
+                } else {
+                    showToastMessage(`✅ ${file.name} ready for eligibility check`, "#e0f2fe");
+                }
+            } else {
+                if (btnTextSpan) btnTextSpan.innerText = "Choose file";
+                if (selectedFileNameSpan) selectedFileNameSpan.innerHTML = "No file chosen";
+            }
+        });
+        
+        // Trigger click on hidden input
+        customBtn.addEventListener("click", function() {
+            fileInput.click();
+        });
+    }
+    
+    document.addEventListener("DOMContentLoaded", () => {
+        renderCompanyPreview();
+        updateApplicationsTable();
+        setupEnhancedUpload();
+        // Prefill skills example but not intrusive
+        const skillField = document.getElementById("skills");
+        if (skillField && skillField.value.trim() === "") skillField.value = "python, sql";
+    });
+    
+    window.checkEligibility = checkEligibility;
+    window.applyJob = applyJob;
+    window.clearApplications = clearApplications;
+</script>
+</body>
+</html>

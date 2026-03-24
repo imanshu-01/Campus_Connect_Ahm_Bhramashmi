@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PlaceBridge — Register</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'DM Sans',sans-serif;background:#070b14;display:flex;align-items:center;justify-content:center;height:100vh;}
+.card{width:420px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:40px;backdrop-filter:blur(20px);}
+h2{color:#fff;margin-bottom:8px;font-family:'Syne';}
+.sub{color:#8492a6;margin-bottom:20px;font-size:13px;}
+input{width:100%;padding:12px;margin-bottom:14px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#fff;}
+input:focus{outline:none;border-color:#1a4bff;box-shadow:0 0 0 3px rgba(26,75,255,.2);}
+button{width:100%;padding:14px;background:#1a4bff;border:none;border-radius:12px;color:#fff;font-weight:600;cursor:pointer;}
+button:hover{background:#0d2db5;}
+.switch{margin-top:18px;color:#8492a6;text-align:center;}
+.switch a{color:#00d4ff;text-decoration:none;}
+</style>
+</head>
+<body>
+
+<div class="card">
+<h2>Create Account</h2>
+<div class="sub">Register for campus placement portal.</div>
+
+<input type="text" id="name" placeholder="Full Name">
+<input type="email" id="email" placeholder="College Email">
+<input type="password" id="password" placeholder="Password">
+<input type="text" id="branch" placeholder="Branch (CSE/IT/ENTC/etc)">
+<input type="number" step="0.01" id="cgpa" placeholder="CGPA (e.g. 7.5)">
+<input type="number" id="backlogs" placeholder="Number of Backlogs">
+
+<button onclick="register()">Register</button>
+
+<div class="switch">
+Already registered? <a href="studentlogin.html">Login</a>
+</div>
+</div>
+
+<script>
+const USERS_KEY = "pb_users";
+
+function register(){
+    const name = document.getElementById("name").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    const branch = document.getElementById("branch").value.trim().toUpperCase();
+    const cgpa = parseFloat(document.getElementById("cgpa").value);
+    const backlogs = parseInt(document.getElementById("backlogs").value);
+
+    if(!name || !email || !password || !branch || isNaN(cgpa) || isNaN(backlogs)){
+        alert("Please fill all fields correctly");
+        return;
+    }
+
+    if(cgpa > 10 || cgpa < 0){
+        alert("CGPA must be between 0 and 10");
+        return;
+    }
+
+    const users = JSON.parse(localStorage.getItem(USERS_KEY)) || [];
+
+    if(users.find(u => u.email === email)){
+        alert("User already exists");
+        return;
+    }
+
+    const newUser = {name,email,password,branch,cgpa,backlogs};
+    users.push(newUser);
+    localStorage.setItem(USERS_KEY, JSON.stringify(users));
+
+    alert("Registration successful");
+    window.location.href = "studentlogin.html";
+}
+</script>
+
+</body>
+</html>
